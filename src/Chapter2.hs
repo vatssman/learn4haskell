@@ -360,11 +360,9 @@ ghci> :l src/Chapter2.hs
 -}
 
 subList :: Int -> Int -> [a] -> [a]
-subList _ _ [] = []
-subList start finish (x:xs)
+subList start finish xs
   | start < 0 || finish < 0 = []
-  | start > 0 = subList (start - 1) (finish - 1) xs
-  | otherwise = x : subList start (finish - 1) xs
+  | otherwise = take (finish - start + 1) (drop start xs)
 
 {- |
 =⚔️= Task 4
@@ -530,7 +528,7 @@ True
 False
 -}
 isThird42 :: [Int] -> Bool
-isThird42 (_:_:x:_) = x == 42
+isThird42 (_:_:42:_) = True
 isThird42 _ = False
 
 
@@ -655,12 +653,8 @@ Write a function that takes elements of a list only in even positions.
 -}
 
 takeEven :: [a] -> [a]
-takeEven = go True
-  where
-  go _ [] = []
-  go pos (x:xs)
-    | pos = x : go (not pos) xs
-    | otherwise = go (not pos) xs
+takeEven (x:_:xs) = x : takeEven xs
+takeEven xs = xs
 
 {- |
 =🛡= Higher-order functions
@@ -768,7 +762,7 @@ value of the element itself
 -}
 
 smartReplicate :: [Int] -> [Int]
-smartReplicate l = concat (map (\x -> replicate x x) l)
+smartReplicate = concatMap (\x -> replicate x x)
 
 {- |
 =⚔️= Task 9
@@ -888,7 +882,8 @@ list.
 rotate :: Int -> [a] -> [a]
 rotate r xs
   | r < 0 = []
-  | otherwise = take (length xs) (drop r (cycle xs))
+  | otherwise = take (length xs) (drop (mod r len) (cycle xs))
+  where len = length xs
 
 {- |
 =💣= Task 12*
